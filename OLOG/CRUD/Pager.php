@@ -25,7 +25,7 @@ class Pager
 		return $page_offset;
 	}
 
-	static public function getPageSize($table_index_on_page, $default_page_size = 30)
+	static public function getPageSize($table_index_on_page, $default_page_size = 3)
 	{
 		$page_size = $default_page_size;
 		if (array_key_exists(self::pageSizeFormFieldName($table_index_on_page), $_GET)) {
