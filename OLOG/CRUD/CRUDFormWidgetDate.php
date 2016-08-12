@@ -42,57 +42,71 @@ class CRUDFormWidgetDate implements InterfaceCRUDFormWidget
             $is_null_checked = ' checked ';
         }
 
-        $field_value_attr = '';
-        if ($field_value) {
-            $field_value_attr = date('d-m-Y', strtotime($field_value));
-        }
-
         $is_required_str = '';
         if ($this->is_required) {
             $is_required_str = ' required ';
         }
 
+        $field_value_attr = '';
+        if ($field_value) {
+            $field_value_attr = date('d-m-Y', strtotime($field_value));
+        }
+
         $input_cols = $this->getShowNullCheckbox() ? '10' : '12';
 
         $html = '';
+        $html .= '<div class="row">';
+        $html .= '<div class="col-sm-' . $input_cols . '">';
+
         $html .= '
             <input type="hidden" id="' . $uniqid . '_input" name="' . Sanitize::sanitizeAttrValue($field_name) . '" value="' . Sanitize::sanitizeTagContent($field_value) . '" data-field="' . $uniqid . '_date" ' . $is_required_str . '>
-            <div class="row">
-                <div class="col-sm-' . $input_cols . '">
-                    <div class="input-group date" id="' . $uniqid . '">
-                        <input id="' . $uniqid . '_date" type="text" class="form-control" value="' . $field_value_attr . '">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                    </div>
-                </div>
-        ';
-
-        if ($this->getShowNullCheckbox()) {
-            $html .= '
-                <div class="col-sm-2">
-                    <label class="form-control-static">
-                        <input type = "checkbox" value = "1" name = "' . Sanitize::sanitizeAttrValue($field_name) . '___is_null" ' . $is_null_checked . ' /> null
-                    </label >
-                </div>
-            ';
-        }
-        $html .= '</div>';
-
+            <div class="input-group date" id="' . $uniqid . '">
+                <input id="' . $uniqid . '_date" type="text" class="form-control" value="' . $field_value_attr . '">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>';
         ob_start(); ?>
         <script>
             $("#<?= $uniqid ?>").datetimepicker({
                 format: "DD-MM-YYYY",
                 sideBySide: true,
                 showTodayButton: true
-            }).on(
-                "dp.change", function (obj) {
+            }).on("dp.change", function (obj) {
+                if (obj.date) {
                     $("#<?= $uniqid ?>_input").val(obj.date.format("YYYY-MM-DD")).trigger('change');
                 }
-            );
+            });
         </script>
         <?php
         $html .= ob_get_clean();
+        $html .= '</div>';
+
+        if ($this->getShowNullCheckbox()) {
+            $html .= '<div class="col-sm-2">';
+            $html .= '<label class="form-control-static">';
+            $html .= '<input data-func-null-name="datetimepicker_null_func" type="checkbox" value="1" name="' . Sanitize::sanitizeAttrValue($field_name) . '___is_null" ' . $is_null_checked . ' /> NULL';
+            $html .= '</label>';
+            $html .= '</div>';
+            ob_start(); ?>
+            <script>
+                var datetimepicker_null_func = function ($this) {
+                    $("#<?= $uniqid ?>_input").on('change', function () {
+                        $this.prop('checked',false);
+                    });
+
+                    $this.on('change', function () {
+                        if ($(this).is(':checked')) {
+                            $('#<?= $uniqid ?>').data("DateTimePicker").clear();
+                            $('#<?= $uniqid ?>_input').val('');
+                        }
+                    });
+                };
+            </script>
+            <?php
+            $html .= ob_get_clean();
+        }
+        $html .= '</div>';
 
         return $script . $html;
     }

@@ -78,7 +78,7 @@ class CRUDFormWidgetInput implements InterfaceCRUDFormWidget
         if ($this->getShowNullCheckbox()) {
             $html .= '<div class="col-sm-2">';
             $html .= '<label class="form-control-static">';
-            $html .= '<input type="checkbox" value="1" name="' . Sanitize::sanitizeAttrValue($field_name) . '___is_null" ' . $is_null_checked . ' /> NULL';
+            $html .= '<input type="checkbox" value="1" name="' . Sanitize::sanitizeAttrValue($field_name) . '___is_null" data-nulled-field="' . Sanitize::sanitizeAttrValue($field_name) . '" ' . $is_null_checked . ' /> NULL';
             $html .= '</label>';
             $html .= '</div>';
         }
